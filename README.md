@@ -32,7 +32,7 @@ CatTrace.complete("Event that started and ended", startTime, endTime)
 ```
 
 ```kotlin
-// Complete event
+// Event
 val event = CatTrace.begin("Long Operation")
 // Long operation
 event.end()
