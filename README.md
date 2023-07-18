@@ -13,6 +13,10 @@ Pipe the events into the script:
 adb -s b8435fb0 logcat -v time | grep --line-buffered -Ei "CatTrace" | python3 cattrace.py
 ```
 
+Open the .json file in https://ui.perfetto.dev/
+
+![](https://github.com/goncalopalaio/CatTrace/blob/main/screenshots/screen1.png?raw=true)
+
 How to send events:
 
 ```kotlin
