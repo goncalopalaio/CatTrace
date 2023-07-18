@@ -99,6 +99,7 @@ object CatTrace {
 
         metadataText(threadName, pid, threadId, MetadataType.ThreadName)
     }
+
     private fun time() = System.currentTimeMillis() * 1000 // microseconds
 
     private fun log(message: String) = println(message)
