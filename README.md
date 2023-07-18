@@ -4,7 +4,7 @@ When everything else fails, you can always count with printf() debugging, in thi
 
 - The client prints events to stdout.
 - The script reads the events and convert them into a Trace Event (https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit?pli=1)
-- You open the file in a Trace Event viewer such as https://ui.perfetto.dev/
+- The file that is created can be open in a Trace Event viewer such as https://ui.perfetto.dev/
 
 
 Pipe the events into the script:
