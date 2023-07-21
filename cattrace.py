@@ -16,6 +16,7 @@ GLOBAL_PID = -1
 TRACES = {}
 
 SEEN_PIDS = {}
+PID_NAMES = {}
 
 def parse(text):
 	try:
@@ -47,6 +48,11 @@ def main():
 
 		event_type = event["ph"]
 		pid = event["pid"]
+		name = event["name"]
+
+		if event_type == "M" and name == "process_name":
+			process_name = event["args"]["name"]
+			PID_NAMES[pid] = process_name
 
 		if pid not in SEEN_PIDS:
 			print("\n\n")
@@ -66,7 +72,8 @@ def main():
 
 		print(f"{event=} | {len(TRACES[pid])} {len(TRACES[GLOBAL_PID])}")
 
-		dump_events(f"pid-{pid}", TRACES[pid])
+		file_name = f"{PID_NAMES[pid]}-{pid}" if pid in PID_NAMES else f"pid-{pid}"
+		dump_events(file_name, TRACES[pid])
 		dump_events("global", TRACES[GLOBAL_PID])
 
 

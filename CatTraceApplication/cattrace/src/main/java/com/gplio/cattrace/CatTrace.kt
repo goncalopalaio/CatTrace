@@ -35,8 +35,20 @@ object CatTrace {
 
     private var pid = 0L
 
-    fun setPid(pid: Long) {
+    fun setPid(pid: Long, name: String? = null) {
         this.pid = pid
+
+        if (name == null) return
+
+        val event = Event(
+            name = MetadataType.ProcessName.value,
+            eventType = EventType.Metadata.value,
+            timestamp = timeUs(),
+            pid = CatTrace.pid,
+            tid = 0,
+            arguments = mapOf("name" to name),
+        )
+        log(jsonAdapter.toJson(event))
     }
 
     fun begin(name: String, category: String? = null) {
@@ -58,16 +70,6 @@ object CatTrace {
     fun instant(name: String, type: InstantType = InstantType.Thread, category: String? = null) {
         val event =
             create(EventType.Instant, name, timeUs(), category = category, eventScope = type.value)
-        log(jsonAdapter.toJson(event))
-    }
-
-    fun metadata(metadataType: MetadataType, value: String) {
-        val event = create(
-            EventType.Metadata,
-            metadataType.value,
-            timeUs(),
-            arguments = mapOf("name" to value)
-        )
         log(jsonAdapter.toJson(event))
     }
 

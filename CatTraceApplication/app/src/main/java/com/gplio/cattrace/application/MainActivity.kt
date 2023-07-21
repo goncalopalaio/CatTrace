@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        CatTrace.setPid(System.currentTimeMillis())
+        CatTrace.setPid(System.currentTimeMillis(), name = "Sample Application Process")
 
         CatTrace.instant("Starting Work")
         thread(name = "thread-1") {
