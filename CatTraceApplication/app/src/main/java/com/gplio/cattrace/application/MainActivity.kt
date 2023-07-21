@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
+import com.gplio.cattrace.events.ExampleEvent
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity() {
                 .setAnchorView(R.id.fab)
                 .setAction("Action", null).show()
         }
+
+        val event = ExampleEvent("", emptyList())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
