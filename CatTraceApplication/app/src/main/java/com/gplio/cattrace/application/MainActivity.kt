@@ -1,18 +1,18 @@
 package com.gplio.cattrace.application
 
 import android.os.Bundle
-import android.util.Log
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
+import com.google.android.material.snackbar.Snackbar
+import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
-import com.gplio.cattrace.events.ExampleEvent
+import kotlin.concurrent.thread
 
 private const val TAG = "MainActivity"
 
@@ -40,8 +40,42 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        val event = ExampleEvent("", emptyList())
-        Log.d(TAG, "onCreate - event=$event")
+        CatTrace.setPid(System.currentTimeMillis())
+
+        CatTrace.instant("Starting Work")
+        thread(name = "thread-1") {
+            CatTrace.begin("work")
+            for (i in 0 until 5) {
+                CatTrace.begin("work-$i", category = "work")
+                slowOperation(i, 10L)
+                CatTrace.end("work-$i", category = "work")
+
+                CatTrace.counter("work", mapOf("value" to i))
+            }
+            CatTrace.end("work")
+
+            CatTrace.threadMetadata()
+        }
+
+        thread(name = "thread-2") {
+            CatTrace.begin("counter")
+            var i = -50
+            while (i <= 50) {
+                CatTrace.counter("counter", mapOf("value" to i))
+                i += 1
+            }
+            CatTrace.end("counter")
+
+            CatTrace.threadMetadata()
+        }
+    }
+
+    private fun slowOperation(to: Int, delayMillis: Long) {
+        for (i in 0 until to) {
+            CatTrace.begin("slowOperation-$to", category = "counter")
+            Thread.sleep(delayMillis)
+            CatTrace.end("slowOperation-$to", category = "counter")
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

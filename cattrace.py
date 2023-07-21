@@ -17,6 +17,12 @@ TRACES = {}
 
 SEEN_PIDS = {}
 
+def parse(text):
+	try:
+		return None, json.loads(text)
+	except Exception as e:
+		return e, None
+
 def main():
 	print("main")
 	while True:
@@ -26,8 +32,6 @@ def main():
 		if not line:
 			break
 		
-		print(f"{line=}")
-		
 		start = line.find(TAG)
 		if start < 0:
 			print(f"Failed to find tag | {line=}")
@@ -35,11 +39,14 @@ def main():
 
 		start = len(TAG) + start + 1
 
-		parts = line[start:].split("|")
-		print(f"{parts=}")
+		error, event = parse(line[start:])
+		
+		if error:
+			print(f"{error=}, {line=}")
+			continue
 
-		event_type = parts[0]
-		pid = int(parts[1])
+		event_type = event["ph"]
+		pid = event["pid"]
 
 		if pid not in SEEN_PIDS:
 			print("\n\n")
@@ -47,49 +54,6 @@ def main():
 			print("\n\n")
 			SEEN_PIDS[pid] = pid
 
-		event = None
-		if event_type == EVENT_TYPE_SYNC:
-			time = int(parts[2])
-			event = create_sync(time)
-
-		elif event_type == EVENT_TYPE_BEGIN:
-			thread_id = int(parts[2])
-			thread_name = parts[3]
-			time = int(parts[4])
-			name = parts[5]
-			event = create_begin(pid, thread_id, thread_name, time, name)
-
-		elif event_type == EVENT_TYPE_END:
-			thread_id = int(parts[2])
-			thread_name = parts[3]
-			time = int(parts[4])
-			name = parts[5]
-			event = create_end(pid, thread_id, thread_name, time, name)
-
-		elif event_type == EVENT_TYPE_COMPLETE:
-			thread_id = int(parts[2])
-			thread_name = parts[3]
-			time = int(parts[4])
-			duration = int(parts[5])
-			name = parts[6]
-			event = create_complete(pid, thread_id, time, duration, name)
-
-		elif event_type == EVENT_TYPE_INSTANT:
-			thread_id = int(parts[2])
-			thread_name = parts[3]
-			instant_type = parts[4]
-			time = int(parts[5])
-			name = parts[6]
-			event = create_instant(pid, thread_id, time, instant_type, name)
-		elif event_type == EVENT_TYPE_METADATA:
-			thread_id = int(parts[2])
-			metadata_type = parts[3]
-			metadata_value = parts[4]
-			event = create_metadata(pid, thread_id, metadata_type, metadata_value)
-
-		else:
-			print(f"Ignoring event | {line=}")
-			continue
 
 		if pid not in TRACES:
 			TRACES[pid] = []
