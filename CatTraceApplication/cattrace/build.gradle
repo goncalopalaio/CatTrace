@@ -8,6 +8,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
 }
 
 apply plugin: 'kotlin'
@@ -22,4 +23,16 @@ java {
 dependencies {
     implementation("com.squareup.moshi:moshi:1.14.0")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.github.goncalopalaio'
+            artifactId = 'cattrace'
+            version = '0.1'
+
+            from components.java
+        }
+    }
 }
