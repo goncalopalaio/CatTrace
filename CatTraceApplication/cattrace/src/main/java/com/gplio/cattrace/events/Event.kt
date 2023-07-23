@@ -13,5 +13,6 @@ data class Event(
     @Json(name = "s") val eventScope: String? = null,
     @Json(name = "args") val arguments: Map<String, Any>? = null,
     @Json(name = "id") val id: Long? = null,
-    @Json(name = "cat") val category: String? = null
+    @Json(name = "cat") val category: String? = null,
+    @Json(name = "dur") val duration: Long? = null,
 )

@@ -27,6 +27,14 @@ enum class MetadataType(val value: String) {
     ThreadName("thread_name"),
 }
 
+/**
+ * Prints Trace Events to stdout.
+ *
+ * Events are printed in JSON as defined here:
+ * Trace Event Format - [https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit?pli=1]
+ *
+ * - Async events are not supported since they aren't visible in Perfetto (would work with chrome://tracing though) [https://github.com/google/perfetto/issues/60]
+ */
 object CatTrace {
     private val moshi: Moshi = Moshi.Builder().build()
     private val jsonAdapter: JsonAdapter<Event> = moshi.adapter(Event::class.java)
@@ -51,25 +59,93 @@ object CatTrace {
         log(jsonAdapter.toJson(event))
     }
 
-    fun begin(name: String, category: String? = null) {
-        val event = create(EventType.Begin, name, timeUs(), category = category)
+    fun begin(
+        name: String,
+        id: Long? = null,
+        category: String? = null,
+        arguments: Map<String, Any>? = null
+    ) {
+        val event =
+            create(
+                EventType.Begin.value,
+                name,
+                timeUs(),
+                category = category,
+                arguments = arguments,
+                id = id,
+            )
         log(jsonAdapter.toJson(event))
     }
 
-    fun end(name: String, category: String? = null) {
-        val event = create(EventType.End, name, timeUs(), category = category)
+    fun end(
+        name: String,
+        id: Long? = null,
+        category: String? = null,
+        arguments: Map<String, Any>? = null
+    ) {
+        val event =
+            create(
+                EventType.End.value,
+                name,
+                timeUs(),
+                category = category,
+                arguments = arguments,
+                id = id,
+            )
+        log(jsonAdapter.toJson(event))
+    }
+
+    fun complete(
+        name: String,
+        startTimeMs: Long,
+        endTimeMs: Long,
+        category: String?,
+        arguments: Map<String, Any>,
+    ) {
+        val duration = (endTimeMs - startTimeMs) // microseconds
+        val startTimeUs = startTimeMs * 1000 // microseconds
+
+        val pid = this.pid
+        val currentThread = Thread.currentThread()
+        val threadId = currentThread.id
+
+        saveThreadName(threadId, currentThread.name)
+
+        val event = Event(
+            name = name,
+            eventType = EventType.Complete.value,
+            timestamp = startTimeUs,
+            pid = pid,
+            tid = threadId,
+            category = category,
+            arguments = arguments,
+            duration = duration,
+        )
+
         log(jsonAdapter.toJson(event))
     }
 
     fun counter(name: String, arguments: Map<String, Any>, category: String? = null) {
         val event =
-            create(EventType.Counter, name, timeUs(), arguments = arguments, category = category)
+            create(
+                EventType.Counter.value,
+                name,
+                timeUs(),
+                arguments = arguments,
+                category = category
+            )
         log(jsonAdapter.toJson(event))
     }
 
     fun instant(name: String, type: InstantType = InstantType.Thread, category: String? = null) {
         val event =
-            create(EventType.Instant, name, timeUs(), category = category, eventScope = type.value)
+            create(
+                EventType.Instant.value,
+                name,
+                timeUs(),
+                category = category,
+                eventScope = type.value
+            )
         log(jsonAdapter.toJson(event))
     }
 
@@ -92,9 +168,10 @@ object CatTrace {
     }
 
     private fun create(
-        eventType: EventType,
+        eventType: String,
         name: String,
         timestamp: Long,
+        id: Long? = null,
         category: String? = null,
         arguments: Map<String, Any>? = null,
         eventScope: String? = null
@@ -106,8 +183,9 @@ object CatTrace {
         saveThreadName(threadId, currentThread.name)
 
         return Event(
+            id = id,
             name = name,
-            eventType = eventType.value,
+            eventType = eventType,
             timestamp = timestamp,
             pid = pid,
             tid = threadId,
