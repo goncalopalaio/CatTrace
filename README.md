@@ -85,3 +85,7 @@ dependencyResolutionManagement {
 // build.gradle (:app)
 implementation 'com.github.goncalopalaio:CatTrace:0.3'
 ```
+
+## Known issues
+
+- Transition between threads
