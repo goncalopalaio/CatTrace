@@ -40,6 +40,11 @@ event.end()
 ```
 
 ```kotlin
+// Counter - Track values across time.
+CatTrace.counter("beans", mapOf("value" to i))
+```
+
+```kotlin
 // Thread names are continuously collected.
 // Call threadMetadata to send a metadata event with their names.
 CatTrace.threadMetadata()
