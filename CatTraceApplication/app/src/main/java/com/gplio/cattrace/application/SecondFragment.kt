@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.application.databinding.FragmentSecondBinding
 import com.gplio.cattrace.trace
 
@@ -24,14 +25,14 @@ class SecondFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = trace(name = "onCreateView", category = TAG) {
+    ): View? = CatTrace.trace(name = "onCreateView", category = TAG) {
 
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
         return binding.root
 
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = trace(name = "onViewCreated", category = TAG)  {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = CatTrace.trace(name = "onViewCreated", category = TAG)  {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonSecond.setOnClickListener {
@@ -39,7 +40,7 @@ class SecondFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() = trace(name = "onDestroyView", category = TAG)  {
+    override fun onDestroyView() = CatTrace.trace(name = "onDestroyView", category = TAG)  {
         super.onDestroyView()
         _binding = null
     }

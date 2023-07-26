@@ -11,12 +11,9 @@ EVENT_TYPE_COMPLETE = "X"
 EVENT_TYPE_INSTANT = "i"
 EVENT_TYPE_METADATA = "M"
 
-GLOBAL_PID = -1
+GLOBAL_FILE = "global"
 
 TRACES = {}
-
-SEEN_PIDS = {}
-PID_NAMES = {}
 
 def parse(text):
 	try:
@@ -26,6 +23,8 @@ def parse(text):
 
 def main():
 	print("main")
+	file = "default"
+
 	while True:
 		line = sys.stdin.readline()
 		line = line.strip()
@@ -52,29 +51,26 @@ def main():
 
 		if event_type == "M" and name == "process_name":
 			process_name = event["args"]["name"]
-			PID_NAMES[pid] = process_name
+			args = event["args"]
 
-		if pid not in SEEN_PIDS:
-			print("\n\n")
-			print(f"New pid | {pid=}")
-			print("\n\n")
-			SEEN_PIDS[pid] = pid
+			# A new file will be created
+			if "type" in args and args["type"] == "START":
+				file = f"{process_name}-{pid}"
 
+		if file not in TRACES:
+			TRACES[file] = []
+			print(f"\n\nNew file | {file=}\n\n")
 
-		if pid not in TRACES:
-			TRACES[pid] = []
+		if GLOBAL_FILE not in TRACES:
+			TRACES[GLOBAL_FILE] = []
 
-		if GLOBAL_PID not in TRACES:
-			TRACES[GLOBAL_PID] = []
+		TRACES[file].append(event)
+		TRACES[GLOBAL_FILE].append(event)
 
-		TRACES[pid].append(event)
-		TRACES[GLOBAL_PID].append(event)
+		print(f"{event=} | {len(TRACES[file])} {len(TRACES[GLOBAL_FILE])}")
 
-		print(f"{event=} | {len(TRACES[pid])} {len(TRACES[GLOBAL_PID])}")
-
-		file_name = f"{PID_NAMES[pid]}-{pid}" if pid in PID_NAMES else f"pid-{pid}"
-		dump_events(file_name, TRACES[pid])
-		dump_events("global", TRACES[GLOBAL_PID])
+		dump_events(file, TRACES[file])
+		dump_events(GLOBAL_FILE, TRACES[GLOBAL_FILE])
 
 
 def create_begin(pid, thread_id, thread_name, time, name):
