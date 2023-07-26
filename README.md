@@ -63,6 +63,8 @@ adb -s b8435fb0 logcat -v time | grep --line-buffered -Ei "CatTrace" | python3 c
 Open the .json file in https://ui.perfetto.dev/
 
 ![](https://github.com/goncalopalaio/CatTrace/blob/main/screenshots/screen1.png?raw=true)
+![](https://github.com/goncalopalaio/CatTrace/blob/main/screenshots/screen2.png?raw=true)
+
 
 ## How to include in your project
 
@@ -77,7 +79,6 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         // (...)
         maven { url 'https://jitpack.io' }
