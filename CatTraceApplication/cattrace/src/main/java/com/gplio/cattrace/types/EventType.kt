@@ -7,4 +7,7 @@ internal enum class EventType(val value: String) {
     Instant("i"),
     Metadata("M"),
     Counter("C"),
+    FlowStart("s"),
+    FlowStep("t"),
+    FlowEnd("f"),
 }

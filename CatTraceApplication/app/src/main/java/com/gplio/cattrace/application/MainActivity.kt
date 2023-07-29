@@ -15,6 +15,7 @@ import com.gplio.cattrace.EventIds
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
 import com.gplio.cattrace.createInstance
 import com.gplio.cattrace.trace
+import com.gplio.cattrace.types.FlowType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
             coroutineTiming()
             threads()
             threadNamesBetweenProcesses()
+            testFlow()
         }
 
     private fun slowOperation(to: Int, delayMillis: Long) =
@@ -269,6 +271,33 @@ class MainActivity : AppCompatActivity() {
         a.sendThreadMetadata()
         b.sendThreadMetadata()
 
+    }
+
+    private fun testFlow() {
+        val id = EventIds.nextEventId()
+        val instance = createInstance(300, "Process-Flow")
+
+        instance.instant("Flow Start")
+
+        thread(name = "Outer") {
+            val threadA = thread(name = "A") {
+                instance.flow(id, "testFlow", FlowType.Start)
+            }
+            val threadB = thread(name = "B") {
+                Thread.sleep(1000)
+                instance.flow(id, "testFlow", FlowType.Step)
+            }
+            val threadC = thread(name = "C") {
+                Thread.sleep(1000)
+                instance.flow(id, "testFlow", FlowType.End)
+            }
+            threadA.join()
+            threadB.join()
+            threadC.join()
+            instance.sendThreadMetadata()
+
+            instance.instant("Flow End")
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
