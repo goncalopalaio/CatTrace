@@ -1,6 +1,5 @@
 package com.gplio.cattrace
 
-import com.gplio.cattrace.CatTrace.createInstance
 import com.gplio.cattrace.definition.CatTraceImpl
 import com.gplio.cattrace.definition.CatTrace as CatTraceInterface
 
@@ -17,15 +16,4 @@ private const val TAG = "CatTrace"
  *
  * Make direct calls to access the global instance or call [createInstance] for a local instance.
  */
-object CatTrace : CatTraceInterface by CatTraceImpl() {
-
-    /**
-     * Creates a separate, local instance of [CatTraceInterface].
-     */
-    fun createInstance(
-        pid: Long,
-        processName: String,
-        arguments: Map<String, Any>? = null
-    ): CatTraceInterface =
-        CatTraceImpl().apply { setPid(pid, processName, arguments = arguments) }
-}
+object CatTrace : CatTraceInterface by CatTraceImpl()

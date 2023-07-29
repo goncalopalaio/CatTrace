@@ -1,11 +1,11 @@
 package com.gplio.cattrace.definition
 
+import com.gplio.cattrace.Metadata
 import com.gplio.cattrace.events.Event
 import com.gplio.cattrace.types.InstantType
 import com.gplio.cattrace.types.MetadataType
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "CatTrace"
 
@@ -26,8 +26,6 @@ internal class CatTraceImpl : CatTrace {
     private val moshi: Moshi = Moshi.Builder().build()
     private val jsonAdapter: JsonAdapter<Event> = moshi.adapter(Event::class.java)
 
-    private val threadNames = ConcurrentHashMap<Long, String>()
-
     private var pid = 0L
 
     private enum class EventType(val value: String) {
@@ -47,12 +45,18 @@ internal class CatTraceImpl : CatTrace {
         val modifiedArguments = arguments?.toMutableMap() ?: LinkedHashMap()
         modifiedArguments.putAll(mapOf("name" to name))
 
-        val event = Event(
+        val currentThread = Thread.currentThread()
+        val threadId = currentThread.id
+        val threadName = currentThread.name
+
+        Metadata.pushThreadName(pid, threadId, threadName)
+
+        val event = createEvent(
             name = MetadataType.ProcessName.value,
             eventType = EventType.Metadata.value,
             timestamp = timeUs(),
             pid = pid,
-            tid = 0,
+            tid = threadId,
             arguments = modifiedArguments,
         )
         log(jsonAdapter.toJson(event))
@@ -112,8 +116,9 @@ internal class CatTraceImpl : CatTrace {
         val threadId = currentThread.id
         val threadName = currentThread.name
 
-        saveThreadName(threadId, threadName)
-        if (startingThreadId != null && startingThreadName != null) saveThreadName(
+        Metadata.pushThreadName(pid, threadId, threadName)
+        if (startingThreadId != null && startingThreadName != null) Metadata.pushThreadName(
+            pid,
             startingThreadId,
             startingThreadName
         )
@@ -125,7 +130,7 @@ internal class CatTraceImpl : CatTrace {
         modifiedArguments[ARGUMENT_ENDING_THREAD_ID] = threadId
         modifiedArguments[ARGUMENT_ENDING_THREAD_NAME] = threadName ?: ""
 
-        val event = Event(
+        val event = createEvent(
             name = name,
             eventType = EventType.Complete.value,
             timestamp = startTimeUs,
@@ -166,19 +171,18 @@ internal class CatTraceImpl : CatTrace {
     override fun threadMetadata() {
         val timestamp = timeUs()
 
+        val threadNames = Metadata.popThreadNames()
         for ((threadId, name) in threadNames) {
-            val event = Event(
+            val event = createEvent(
                 name = MetadataType.ThreadName.value,
                 eventType = EventType.Metadata.value,
                 timestamp = timestamp,
-                pid = pid,
-                tid = threadId,
+                pid = threadId.pid,
+                tid = threadId.tid,
                 arguments = mapOf("name" to name),
             )
             log(jsonAdapter.toJson(event))
         }
-
-        threadNames.clear()
     }
 
     private fun create(
@@ -194,9 +198,9 @@ internal class CatTraceImpl : CatTrace {
         val currentThread = Thread.currentThread()
         val threadId = currentThread.id
 
-        saveThreadName(threadId, currentThread.name)
+        Metadata.pushThreadName(pid, threadId, currentThread.name)
 
-        return Event(
+        return createEvent(
             id = id,
             name = name,
             eventType = eventType,
@@ -209,11 +213,29 @@ internal class CatTraceImpl : CatTrace {
         )
     }
 
-    private fun saveThreadName(threadId: Long, threadName: String) {
-        if (threadNames.containsKey(threadId)) return
-        threadNames[threadId] =
-            threadName // contains and put not exactly sync'ed but duplicate metadata events aren't really an issue.
-    }
+    private fun createEvent(
+        name: String,
+        eventType: String,
+        timestamp: Long,
+        pid: Long,
+        tid: Long,
+        eventScope: String? = null,
+        arguments: Map<String, Any>? = null,
+        id: Long? = null,
+        category: String? = null,
+        duration: Long? = null,
+    ) = Event(
+        id = id,
+        name = name,
+        eventType = eventType,
+        timestamp = timestamp,
+        pid = pid,
+        tid = tid,
+        category = category,
+        arguments = arguments,
+        eventScope = eventScope,
+        duration = duration,
+    )
 
     private fun timeUs() = System.currentTimeMillis() * 1000 // microseconds
 

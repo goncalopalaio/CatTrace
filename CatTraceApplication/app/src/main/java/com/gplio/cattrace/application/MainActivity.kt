@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.EventIds
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
+import com.gplio.cattrace.createInstance
 import com.gplio.cattrace.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -32,7 +33,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     init {
-        CatTrace.setPid(System.currentTimeMillis(), name = "Sample Application Process", mapOf("type" to "START"))
+        CatTrace.setPid(
+            System.currentTimeMillis(),
+            name = "Sample Application Process",
+            mapOf("type" to "START")
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) =
@@ -62,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             coroutines()
             coroutineTiming()
             threads()
+            threadNamesBetweenProcesses()
 
             CatTrace.threadMetadata()
         }
@@ -80,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun threads() {
-        val instance = CatTrace.createInstance(1, "Threads")
+        val instance = createInstance(1, "Threads")
 
         thread(name = "thread-1") {
             instance.begin("work")
@@ -125,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun coroutines() {
-        val instance = CatTrace.createInstance(2, "Coroutines")
+        val instance = createInstance(2, "Coroutines")
 
         val scope = CoroutineScope(Dispatchers.IO)
 
@@ -231,8 +237,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun coroutineTiming() {
-        val instance = CatTrace.createInstance(50, "CoroutineTiming")
+        val instance = createInstance(50, "CoroutineTiming")
         val scope = CoroutineScope(Dispatchers.IO)
 
         scope.launch {
@@ -250,6 +257,22 @@ class MainActivity : AppCompatActivity() {
             instance.threadMetadata()
         }
     }
+
+    private fun threadNamesBetweenProcesses() {
+        // Perfetto considers that thread ids are unique across processes so the last process that sends metadata with the threadId gets the name shown there.
+        // if there are multiple instances using the same thread.
+        // The only I'm finding to fix this is to make the ids unique by prepending the original process id to each threadId.
+        val a = createInstance(100, "Process-A")
+        val b = createInstance(200, "Process-B")
+
+        a.instant("Start")
+        b.instant("Start")
+
+        a.threadMetadata()
+        b.threadMetadata()
+
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
