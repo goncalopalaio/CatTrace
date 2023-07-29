@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.gplio.cattrace.CatTrace
+import com.gplio.cattrace.Metadata
 import com.gplio.cattrace.application.databinding.FragmentFirstBinding
+import com.gplio.cattrace.createInstance
 import com.gplio.cattrace.trace
 
 private const val TAG = "FirstFragment"
@@ -39,6 +41,10 @@ class FirstFragment : Fragment() {
 
             binding.buttonFirst.setOnClickListener {
                 findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            }
+
+            binding.buttonTest4.setOnClickListener {
+                Metadata.sendThreadMetadata()
             }
         }
 

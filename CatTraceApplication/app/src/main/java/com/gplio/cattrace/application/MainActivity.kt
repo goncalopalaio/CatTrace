@@ -12,6 +12,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.EventIds
+import com.gplio.cattrace.Metadata
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
 import com.gplio.cattrace.createInstance
 import com.gplio.cattrace.trace
@@ -68,8 +69,6 @@ class MainActivity : AppCompatActivity() {
             coroutineTiming()
             threads()
             threadNamesBetweenProcesses()
-
-            CatTrace.threadMetadata()
         }
 
     private fun slowOperation(to: Int, delayMillis: Long) =
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             }
             instance.end("work")
 
-            instance.threadMetadata()
+            Metadata.sendThreadMetadata()
         }
 
         thread(name = "thread-2") {
@@ -111,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             }
             instance.end("counter")
 
-            instance.threadMetadata()
+            Metadata.sendThreadMetadata()
         }
 
         // This doesn't work with Perfetto, the begin and end events do not connect.
@@ -126,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             instance.end("Switched")
 
             instance.end("Switching", id = id)
-            instance.threadMetadata()
+            Metadata.sendThreadMetadata()
         }
     }
 
@@ -254,7 +253,7 @@ class MainActivity : AppCompatActivity() {
                 delay(1)
             }
 
-            instance.threadMetadata()
+            Metadata.sendThreadMetadata()
         }
     }
 
@@ -268,8 +267,8 @@ class MainActivity : AppCompatActivity() {
         a.instant("Start")
         b.instant("Start")
 
-        a.threadMetadata()
-        b.threadMetadata()
+        Metadata.sendThreadMetadata()
+        Metadata.sendThreadMetadata()
 
     }
 

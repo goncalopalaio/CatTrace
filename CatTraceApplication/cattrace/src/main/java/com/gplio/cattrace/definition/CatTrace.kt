@@ -34,6 +34,4 @@ interface CatTrace {
     fun counter(name: String, arguments: Map<String, Any>, category: String? = null)
 
     fun instant(name: String, type: InstantType = InstantType.Thread, category: String? = null)
-
-    fun threadMetadata()
 }

@@ -2,12 +2,13 @@ package com.gplio.cattrace.definition
 
 import com.gplio.cattrace.Metadata
 import com.gplio.cattrace.events.Event
+import com.gplio.cattrace.log
+import com.gplio.cattrace.timeUs
+import com.gplio.cattrace.types.EventType
 import com.gplio.cattrace.types.InstantType
 import com.gplio.cattrace.types.MetadataType
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-
-private const val TAG = "CatTrace"
 
 private const val ARGUMENT_STARTING_THREAD_ID = "startingThreadId"
 private const val ARGUMENT_STARTING_THREAD_NAME = "startingThreadName"
@@ -28,15 +29,6 @@ internal class CatTraceImpl : CatTrace {
 
     private var pid = 0L
 
-    private enum class EventType(val value: String) {
-        Begin("B"),
-        End("E"),
-        Complete("X"),
-        Instant("i"),
-        Metadata("M"),
-        Counter("C"),
-    }
-
     override fun setPid(pid: Long, name: String?, arguments: Map<String, Any>?) {
         this.pid = pid
 
@@ -49,7 +41,7 @@ internal class CatTraceImpl : CatTrace {
         val threadId = currentThread.id
         val threadName = currentThread.name
 
-        Metadata.pushThreadName(pid, threadId, threadName)
+        Metadata.updateThreadName(pid, threadId, threadName)
 
         val event = createEvent(
             name = MetadataType.ProcessName.value,
@@ -116,8 +108,8 @@ internal class CatTraceImpl : CatTrace {
         val threadId = currentThread.id
         val threadName = currentThread.name
 
-        Metadata.pushThreadName(pid, threadId, threadName)
-        if (startingThreadId != null && startingThreadName != null) Metadata.pushThreadName(
+        Metadata.updateThreadName(pid, threadId, threadName)
+        if (startingThreadId != null && startingThreadName != null) Metadata.updateThreadName(
             pid,
             startingThreadId,
             startingThreadName
@@ -168,23 +160,6 @@ internal class CatTraceImpl : CatTrace {
         log(jsonAdapter.toJson(event))
     }
 
-    override fun threadMetadata() {
-        val timestamp = timeUs()
-
-        val threadNames = Metadata.popThreadNames()
-        for ((threadId, name) in threadNames) {
-            val event = createEvent(
-                name = MetadataType.ThreadName.value,
-                eventType = EventType.Metadata.value,
-                timestamp = timestamp,
-                pid = threadId.pid,
-                tid = threadId.tid,
-                arguments = mapOf("name" to name),
-            )
-            log(jsonAdapter.toJson(event))
-        }
-    }
-
     private fun create(
         eventType: String,
         name: String,
@@ -198,7 +173,7 @@ internal class CatTraceImpl : CatTrace {
         val currentThread = Thread.currentThread()
         val threadId = currentThread.id
 
-        Metadata.pushThreadName(pid, threadId, currentThread.name)
+        Metadata.updateThreadName(pid, threadId, currentThread.name)
 
         return createEvent(
             id = id,
@@ -236,8 +211,4 @@ internal class CatTraceImpl : CatTrace {
         eventScope = eventScope,
         duration = duration,
     )
-
-    private fun timeUs() = System.currentTimeMillis() * 1000 // microseconds
-
-    private fun log(message: String) = println("$TAG $message")
 }
