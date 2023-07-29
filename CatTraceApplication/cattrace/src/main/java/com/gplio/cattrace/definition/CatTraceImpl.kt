@@ -41,7 +41,7 @@ internal class CatTraceImpl : CatTrace {
         val threadId = currentThread.id
         val threadName = currentThread.name
 
-        Metadata.updateThreadName(pid, threadId, threadName)
+        Metadata.pushThreadName(pid, threadId, threadName)
 
         val event = createEvent(
             name = MetadataType.ProcessName.value,
@@ -108,8 +108,8 @@ internal class CatTraceImpl : CatTrace {
         val threadId = currentThread.id
         val threadName = currentThread.name
 
-        Metadata.updateThreadName(pid, threadId, threadName)
-        if (startingThreadId != null && startingThreadName != null) Metadata.updateThreadName(
+        Metadata.pushThreadName(pid, threadId, threadName)
+        if (startingThreadId != null && startingThreadName != null) Metadata.pushThreadName(
             pid,
             startingThreadId,
             startingThreadName
@@ -160,6 +160,23 @@ internal class CatTraceImpl : CatTrace {
         log(jsonAdapter.toJson(event))
     }
 
+    override fun sendThreadMetadata() {
+        val timestamp = timeUs()
+
+        val threadNames = Metadata.popThreadNames()
+        for ((threadId, name) in threadNames) {
+            val event = createEvent(
+                name = MetadataType.ThreadName.value,
+                eventType = EventType.Metadata.value,
+                timestamp = timestamp,
+                pid = threadId.pid,
+                tid = threadId.tid,
+                arguments = mapOf("name" to name),
+            )
+            log(jsonAdapter.toJson(event))
+        }
+    }
+
     private fun create(
         eventType: String,
         name: String,
@@ -173,7 +190,7 @@ internal class CatTraceImpl : CatTrace {
         val currentThread = Thread.currentThread()
         val threadId = currentThread.id
 
-        Metadata.updateThreadName(pid, threadId, currentThread.name)
+        Metadata.pushThreadName(pid, threadId, currentThread.name)
 
         return createEvent(
             id = id,

@@ -12,7 +12,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.EventIds
-import com.gplio.cattrace.Metadata
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
 import com.gplio.cattrace.createInstance
 import com.gplio.cattrace.trace
@@ -98,7 +97,7 @@ class MainActivity : AppCompatActivity() {
             }
             instance.end("work")
 
-            Metadata.sendThreadMetadata()
+            instance.sendThreadMetadata()
         }
 
         thread(name = "thread-2") {
@@ -110,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
             instance.end("counter")
 
-            Metadata.sendThreadMetadata()
+            instance.sendThreadMetadata()
         }
 
         // This doesn't work with Perfetto, the begin and end events do not connect.
@@ -125,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             instance.end("Switched")
 
             instance.end("Switching", id = id)
-            Metadata.sendThreadMetadata()
+            instance.sendThreadMetadata()
         }
     }
 
@@ -253,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                 delay(1)
             }
 
-            Metadata.sendThreadMetadata()
+            instance.sendThreadMetadata()
         }
     }
 
@@ -267,8 +266,8 @@ class MainActivity : AppCompatActivity() {
         a.instant("Start")
         b.instant("Start")
 
-        Metadata.sendThreadMetadata()
-        Metadata.sendThreadMetadata()
+        a.sendThreadMetadata()
+        b.sendThreadMetadata()
 
     }
 
