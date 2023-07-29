@@ -95,3 +95,4 @@ implementation 'com.github.goncalopalaio:CatTrace:0.3'
 ## Known issues
 
 - Transition between threads
+- If different threads have the same id across multiple processes, only one of the threads display the name in Perfetto.
