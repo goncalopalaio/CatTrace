@@ -5,7 +5,6 @@ import com.gplio.cattrace.events.Event
 import com.gplio.cattrace.log
 import com.gplio.cattrace.timeUs
 import com.gplio.cattrace.types.EventType
-import com.gplio.cattrace.types.FlowType
 import com.gplio.cattrace.types.InstantType
 import com.gplio.cattrace.types.MetadataType
 import com.squareup.moshi.JsonAdapter
@@ -149,13 +148,19 @@ internal class CatTraceImpl : CatTrace {
         log(jsonAdapter.toJson(event))
     }
 
-    override fun instant(name: String, type: InstantType, category: String?) {
+    override fun instant(
+        name: String,
+        type: InstantType,
+        category: String?,
+        arguments: Map<String, Any>?
+    ) {
         val event =
             create(
                 EventType.Instant.value,
                 name,
                 timeUs(),
                 category = category,
+                arguments = arguments,
                 eventScope = type.value
             )
         log(jsonAdapter.toJson(event))

@@ -14,12 +14,11 @@ import com.gplio.cattrace.CatTrace
 import com.gplio.cattrace.EventIds
 import com.gplio.cattrace.application.databinding.ActivityMainBinding
 import com.gplio.cattrace.createInstance
+import com.gplio.cattrace.metrics.MemoryInfo
+import com.gplio.cattrace.metrics.memoryInfo
 import com.gplio.cattrace.trace
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -128,10 +127,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun memoryCounters(
+        instance: com.gplio.cattrace.definition.CatTrace,
+        memoryInfo: MemoryInfo
+    ) {
+        memoryInfo.memTotalBytes?.let {
+            instance.counter("memTotalBytesKb", mapOf("value" to it), category = "memory")
+        }
+        memoryInfo.memFreeBytes?.let {
+            instance.counter("memFreeBytesKb", mapOf("value" to it), category = "memory")
+
+        }
+        memoryInfo.memAvailableBytes?.let {
+            instance.counter("memAvailableBytes", mapOf("value" to it), category = "memory")
+        }
+        memoryInfo.swapTotalBytes?.let {
+            instance.counter("swapTotalBytes", mapOf("value" to it), category = "memory")
+
+        }
+        memoryInfo.swapFreeBytes?.let {
+            instance.counter("swapFreeBytes", mapOf("value" to it), category = "memory")
+        }
+    }
+
     private fun coroutines() {
         val instance = createInstance(2, "Coroutines")
 
         val scope = CoroutineScope(Dispatchers.IO)
+
+        scope.launch {
+            val list = ArrayList<List<Int>>()
+            for (i in 0 until 10) {
+                val memoryInfo = memoryInfo()
+                memoryCounters(instance, memoryInfo)
+
+                list.add((0..10000).toList())
+                delay(100)
+            }
+        }
 
         scope.launch {
             for (i in 0 until 10) {
@@ -187,37 +220,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         scope.launch {
-            CatTrace.begin("complete-switching-threads", category = "coroutines")
-            delay(2000)
+            // TODO: This sometimes shows as not being finished since there's a thread switch between the begin and end call.
 
-            val work = mutableListOf<Deferred<Int>>()
-            for (i in 0 until 10) {
-                work.add(async {
-                    delay(2000)
-                    val startTimeMs = System.currentTimeMillis()
-                    val startingThread = Thread.currentThread()
-                    val startingThreadId = startingThread.id
-                    val startingThreadName = startingThread.name
+            CatTrace.trace("switching-threads-complete") {
+                val startThread = Thread.currentThread()
+                CatTrace.instant(
+                    "Start",
+                    arguments = mapOf(
+                        "startThreadId" to startThread.id,
+                        "startThreadName" to startThread.name
+                    )
+                )
+                Thread.sleep(100)
 
-                    withContext(Dispatchers.Main) {
-                        val endingTimeMs = System.currentTimeMillis()
-                        CatTrace.complete(
-                            "complete-switching-threads-$i",
-                            startTimeMs,
-                            endingTimeMs,
-                            startingThreadId = startingThreadId,
-                            startingThreadName = startingThreadName, category = "coroutines"
-                        )
-                    }
-                    i
-                })
+                CatTrace.begin("switching-threads", category = "coroutines", id = 11200)
+                delay(1)
+                CatTrace.end(
+                    "switching-threads",
+                    arguments = mapOf("result" to 1),
+                    category = "coroutines",
+                    id = 11200
+                )
+
+                Thread.sleep(100)
+                val endThread = Thread.currentThread()
+                CatTrace.instant(
+                    "Start",
+                    arguments = mapOf("endThreadId" to endThread.id, "endThreadName" to endThread.name)
+                )
             }
-            val result = work.awaitAll()
-            CatTrace.end(
-                "complete-switching-threads",
-                arguments = mapOf("result" to result),
-                category = "coroutines"
-            )
         }
 
         scope.launch {
