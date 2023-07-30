@@ -161,31 +161,6 @@ internal class CatTraceImpl : CatTrace {
         log(jsonAdapter.toJson(event))
     }
 
-    override fun flow(
-        id: Long,
-        name: String,
-        type: FlowType,
-        arguments: Map<String, Any>?,
-        category: String?
-    ) {
-        val eventType = when (type) {
-            FlowType.Start -> EventType.FlowStart
-            FlowType.Step -> EventType.FlowStep
-            FlowType.End -> EventType.FlowEnd
-        }
-
-        val event =
-            create(
-                eventType.value,
-                name,
-                timeUs(),
-                id = id,
-                arguments = arguments,
-                category = category,
-            )
-        log(jsonAdapter.toJson(event))
-    }
-
     override fun sendThreadMetadata() {
         val timestamp = timeUs()
 
