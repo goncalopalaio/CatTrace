@@ -1,0 +1,80 @@
+{
+    "traceEvents": [
+        {
+            "name": "A-1",
+            "ph": "B",
+            "ts": 100,
+            "pid": 10,
+            "tid": 81
+        },
+        {
+            "name": "A-1",
+            "ph": "E",
+            "ts": 200,
+            "pid": 10,
+            "tid": 81
+        },
+        {
+            "name": "B-1",
+            "ph": "B",
+            "ts": 300,
+            "pid": 10,
+            "tid": 81
+        },
+        {
+            "name": "B-1",
+            "ph": "E",
+            "ts": 400,
+            "pid": 10,
+            "tid": 81
+        },
+        {
+            "name": "A-2",
+            "ph": "B",
+            "ts": 100,
+            "pid": 10,
+            "tid": 99
+        },
+        {
+            "name": "A-2",
+            "ph": "E",
+            "ts": 200,
+            "pid": 10,
+            "tid": 99
+        },
+        {
+            "name": "B-2",
+            "ph": "B",
+            "ts": 300,
+            "pid": 10,
+            "tid": 99
+        },
+        {
+            "name": "B-2",
+            "ph": "E",
+            "ts": 400,
+            "pid": 10,
+            "tid": 99
+        },
+        {
+            "name": "thread_name",
+            "ph": "M",
+            "ts": 1690724648653000,
+            "pid": 10,
+            "tid": 99,
+            "args": {
+                "name": "DefaultDispatcher-worker-11"
+            }
+        },
+        {
+            "name": "thread_name",
+            "ph": "M",
+            "ts": 1690724648653000,
+            "pid": 10,
+            "tid": 81,
+            "args": {
+                "name": "DefaultDispatcher-worker-5"
+            }
+        }
+    ]
+}

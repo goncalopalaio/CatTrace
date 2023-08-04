@@ -1,0 +1,54 @@
+{
+    "traceEvents": [
+        {
+            "name": "DURATION-200",
+            "ph": "B",
+            "ts": 100,
+            "pid": 10,
+            "tid": 99
+        },
+        {
+            "name": "DURATION-300",
+            "ph": "B",
+            "ts": 400,
+            "pid": 10,
+            "tid": 81,
+            "flow_ids": [1]
+        },
+        {
+            "name": "DURATION-200",
+            "ph": "E",
+            "ts": 300,
+            "pid": 10,
+            "tid": 99,
+            "flow_ids": [1]
+        },
+        {
+            "name": "DURATION-300",
+            "ph": "E",
+            "ts": 700,
+            "pid": 10,
+            "tid": 81
+        },
+        {
+            "name": "thread_name",
+            "ph": "M",
+            "ts": 1690724648653000,
+            "pid": 10,
+            "tid": 99,
+            "args": {
+                "name": "DefaultDispatcher-worker-11"
+            }
+        },
+        {
+            "name": "thread_name",
+            "ph": "M",
+            "ts": 1690724648653000,
+            "pid": 10,
+            "tid": 81,
+            "args": {
+                "name": "DefaultDispatcher-worker-5"
+            }
+        }
+    ]
+}

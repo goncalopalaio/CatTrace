@@ -1,0 +1,29 @@
+
+‚ŒŒÓÁ2Test
+‚"ŒŒÓÁ*main(
+‚"ŒŒÓÁ?*threadA(
+‚"ŒŒÓÁB*threadD(
+‚"ŒŒÓÁ@*threadB(
+‚"ŒŒÓÁA*threadC(
+‚"ŒŒÓÁ>*
+rootThread(
+#@—®Ô∑£¡ÄP¡¢ÓZHX∫onCreateView
+@P¡¢ÓZHX∫onCreateView
+$@¡‘∑£¡ÄP¡¢ÓZHX∫onViewCreated
+$@¡‘∑£¡ÄP¡¢ÓZHX∫onViewCreated
+@â∑Ú∑£¡ÄP¡¢ÓZHX∫A
+@ÒæÚ∑£¡ÄP¡¢ÓZHX∫D-top
+@â∑Ú∑£¡ÄP¡¢ÓZHX∫B
+@ëﬁÚ∑£¡ÄP¡¢ÓZHX∫C
+@˘”¯∑£¡ÄP¡¢ÓZHX∫D-top
+ @·€¯∑£¡ÄP¡¢ÓZHX∫	Instant-1
+ @°àˇ∑£¡ÄP¡¢ÓZHX∫	Instant-2
+ @±≤ã∏£¡ÄP¡¢ÓZHX∫	Instant-3
+ @…Òù∏£¡ÄP¡¢ÓZHX∫	Instant-4
+@±√Ø∏£¡ÄP¡¢ÓZHX∫A
+@±Æ∂∏£¡ÄP¡¢ÓZHX∫D-bottom
+@π√º∏£¡ÄP¡¢ÓZHX∫D-bottom
+@Ò«Ï∏£¡ÄP¡¢ÓZHX∫B
+@πÛ©π£¡ÄP¡¢ÓZHX∫C
+@â∑Ú∑£¡ÄP¡¢ÓZHX∫join
+@πÛ©π£¡ÄP¡¢ÓZHX∫join

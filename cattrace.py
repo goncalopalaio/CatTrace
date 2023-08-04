@@ -98,7 +98,7 @@ def create_trace(events):
 def dump_events(file_name, events):
 	trace = create_trace(events)
 
-	with open(f"{file_name}.json", 'w') as fp:
+	with open(f"files/{file_name}.json", 'w') as fp:
 		json.dump(trace, fp)
 
 if __name__ == '__main__':
